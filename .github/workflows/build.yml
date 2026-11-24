@@ -1,0 +1,78 @@
+name: Build Android, iOS and Windows
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unzip android.zip
+        run: mkdir android && unzip -q android.zip -d android
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: '8.7' }
+      - name: Build APK
+        working-directory: android
+        run: gradle assembleDebug --no-daemon --stacktrace
+      - name: Show the APK
+        run: ls -lh android/app/build/outputs/apk/debug/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NexoraEdu-Android-APK
+          path: android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unzip ios.zip
+        run: mkdir ios && unzip -q ios.zip -d ios
+      - name: Xcode version
+        run: xcodebuild -version
+      - name: Check the Xcode project lists every file
+        working-directory: ios
+        run: python3 tools/gen_xcodeproj.py --check
+      - name: Build (unsigned)
+        working-directory: ios
+        run: |
+          xcodebuild -project NexoraEdu.xcodeproj -scheme NexoraEdu \
+            -configuration Release -sdk iphoneos -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build
+      - name: Package IPA
+        working-directory: ios
+        run: |
+          mkdir Payload
+          cp -R build/Build/Products/Release-iphoneos/NexoraEdu.app Payload/
+          zip -q -r NexoraEdu.ipa Payload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NexoraEdu-iOS-IPA
+          path: ios/NexoraEdu.ipa
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unzip windows.zip and android.zip
+        shell: bash
+        run: |
+          mkdir windows && unzip -q windows.zip -d windows
+          mkdir android && unzip -q android.zip -d android
+      - uses: actions/setup-dotnet@v4
+        with: { dotnet-version: '8.0.x' }
+      - name: Strings and colors must match the Android app
+        working-directory: windows
+        shell: bash
+        run: python tools/gen_resources.py ../android/app/src/main/res --check
+      - name: Build exe (single file, self-contained)
+        working-directory: windows
+        run: dotnet publish NexoraEdu.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NexoraEdu-Windows-EXE
+          path: windows/out/NexoraEdu.exe
