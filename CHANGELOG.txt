@@ -1,0 +1,466 @@
+release 62 (windows 0.9.2, android 1.8.23, ios 1.9.14) - 2026-11-24
+  - IPHONE, STEP 2 OF 2: the "atoms" entry animation of the iPhone is now complete and matches Android (SplashView.kt) in timeline and numbers. Windows NOT changed.
+  - Added in Screens/AtomSplash.swift: (1) FLASK DUST - a second set of white / gold dots that starts inside the icon square and gathers into the flask: 260 dots spread over the flask lines (by line length, min 8 per line, like Android), 7 dots round each of the 2 bubbles, 14 golden dots for the nucleus; delay 1.4 s + up to 0.45 s, 600-850 ms flight, curved path, fade-in, fades out while the real flask takes over (FLASK_FULL -> FL_FADE_END). (2) SHINE - a white band sweeping over the icon, clipped to the rounded square, from BURST. (3) TWO RINGS - accent colour 1 (2 pt) and accent colour 2 (1.5 pt, starts 220 ms later), growing and fading. (4) 48 SPARKS - white / gold, flying out from the icon and fading. (5) PULSE - the whole animation scales up to +7% and back in 500 ms at BURST (about the icon centre).
+  - Timeline unchanged from step 1 (4300 ms scale played 1.3x faster = 3.3 s, BURST at 2950, BURST_END 3950, route at 3.65 s, tap skips, launch sound unchanged). Sizes are in points, which equals Android dp, so no density factor is needed.
+  - New helper AtomArt.polyline / length / point: SwiftUI has no PathMeasure, so the flask paths are flattened into small segments to place dust exactly on the lines (curves = 24 steps each).
+  - Changed: Screens/AtomSplash.swift only (AtomModel got `flask` + `sparks`, draw() now wraps drawAll() with the pulse), tools/gen_xcodeproj.py (1.9.14 build 34, project regenerated, --check OK). SplashView.swift unchanged. No new strings. Android / Windows unchanged.
+  - NOT compiled here (no Swift toolchain): braces checked by script, Xcode project check OK. Build with GitHub Actions; if there is a compile error send the log line. Not tested on a device: speed (about 650 + 260 dots plus tails) on old iPhones - if it stutters, lower the tails in drawParticles first.
+
+release 61 (windows 0.9.2, android 1.8.23, ios 1.9.13) - 2026-11-24
+  - IPHONE, STEP 1 OF 2: the "atoms" entry animation of Android is now on the iPhone. Checked first: Android has it (SplashView.kt, dust forms the icon square, then the flask); Windows and iPhone only had the plain pop of the icon (release 48). Windows NOT changed.
+  - Step 1 (this package): dust floating on the screen is pulled in along curved paths (650 dots, short fading tails) and forms the icon square, twinkling background dust, glow behind the square, the real square (accent gradient + glass sheen) takes over, the flask is TRACED stroke by stroke, bubbles rise inside it, then the name and the tagline fade in. Same timeline as Android (4.3 s scale played 1.3x faster = 3.3 s, route at 3.65 s), tap skips, launch sound unchanged.
+  - Step 2 (next package): dust that gathers into the flask, shine sweep, two rings, sparks and the pulse at the burst.
+  - New: Screens/AtomSplash.swift (AtomTL timeline, AtomRGB, AtomRng seeded dust, AtomArt flask paths, AtomModel, AtomLayer = TimelineView + Canvas). Changed: Screens/SplashView.swift (SplashView now hosts AtomLayer, GlassAurora kept as it was), tools/gen_xcodeproj.py (1.9.13 build 33, project regenerated, --check OK). No new strings.
+  - NOT compiled here (no Swift toolchain). Build with GitHub Actions; if there is a compile error send the log line. Not tested on a device: speed of the 650 dots on old iPhones.
+
+release 60 (windows 0.9.2, android 1.8.23, ios 1.9.12) - 2026-11-24
+  - PACKAGE ONLY: release 59 (Android 1.8.23 + iPhone 1.9.12) is now closed and sent as v60. No app code changed in this release.
+  - WINDOWS CHECKED, NOT CHANGED: the desktop app has a left/right sidebar (not a top capsule header or a bottom bar), the settings page already covers the whole window (the sidebar is not shown there), the title bar is the normal Windows one (no status bar), and no top icon is cut. The only point left is the standard Windows scroll bar (ScrollBarVisibility.Auto in StudentShell, TeacherShell, AdminShell, SettingsPage, LoginView): kept as it is, because on a mouse + keyboard desktop it is the normal control. Say so if it must be hidden too.
+  - NOT compiled here. Build with GitHub Actions and test.
+
+release 59 (windows 0.9.2, android 1.8.23, ios 1.9.12) - 2026-11-24
+  - ANDROID ONLY so far (iPhone and Windows not changed yet): the finished android.zip 1.8.23 replaces the old 1.8.22 one inside this package.
+  - Top header is now a floating frosted capsule like the bottom bar (cap_frost, no border); the content scrolls under it (ShellActivity applyInsets + activity_shell.xml).
+  - The bottom bar hides while the settings screen is open and comes back when it closes.
+  - The app continues under the status bar (transparent, app colours, no black strip) on the login screen and the shell.
+  - The side scrollbar is hidden on every screen (home, settings, login, PDF, video, dialogs).
+  - IPHONE step 1 of 2 (ios 1.9.11, build 31): Core/Shell.swift ShellFrame. The header is now a floating capsule with the same frosted look as the bottom bar (th.sheet 97%, border, shadow); the body is one full ScrollView with the header as a top safeAreaInset, so it scrolls under the header and nothing is cut off. The bottom bar fades out (and ignores touches) while the settings screen is open. Step 2 still to do: app colours under the status bar (no black strip) and no scroll indicators. Not compiled here (no Xcode); braces checked by script.
+  - IPHONE step 2 of 2 (ios 1.9.12, build 32): no side scroll bar anywhere (showsIndicators: false on the shell body, settings, login and video panel, plus UIScrollView.appearance() in NexoraEduApp). New WindowTint (Core/Theme.swift, used in RootView): the UIKit window and its root view wear the app background colour, so no black strip can show behind the transparent status bar. Status bar text colour already follows the theme (preferredColorScheme). Not compiled here (no Xcode).
+  - NOT compiled here. Build with GitHub Actions and test.
+
+release 58 (windows 0.9.2, android 1.8.22, ios 1.9.10) - 2026-11-24
+  - WINDOWS ONLY: the admin removes a STUDENT on the server too. Before, the trash button in the admin Students tab only deleted the local copy on that PC; the student stayed alive on the server.
+  - NEW server file server/supabase/006_admin_students.sql (run it ONCE in the Supabase SQL Editor after 005): remove_student(p_email, p_reason). Real admins only (the server refuses anyone else). The row stays, active = false and removed_at is set, so the student loses every right at once.
+  - Windows: Core/AdminControl.cs RemoveStudentAsync + Guard() now also covers a STUDENT (a removed student is signed out when the app opens / comes to the front with internet; the local student copy is wiped; message acct_removed). Views/Admin/AdminShell.cs StudentCard trash: server first, then the local copy. No network = nothing is deleted (message err_remove_fail, retry later); the server refuses (the account is not a real admin there) = only the local copy goes. MainWindow.ShowStudent runs the check.
+  - No new string (err_remove_fail and acct_removed already exist on all three apps). Android and iPhone unchanged: their admin student delete is still local only.
+  - Already on Windows, unchanged: remove a teacher (any admin), remove an admin (MAIN admin only, decided on the server), add an admin (one-time code from the main admin), staff list, sign-in alerts.
+  - NOT run: 006 was never executed and C# was not compiled (no Postgres / .NET here); braces checked by script. Build with Actions, then test: admin deletes a student with internet -> the student's PC signs out at next open; without internet -> nothing deleted + message.
+
+release 57 (windows 0.9.1, android 1.8.22, ios 1.9.10) - 2026-11-24
+  - ALL THREE: ADMIN ACTIVATION CODE. New server file server/supabase/005_admin_activation.sql (run it ONCE in the Supabase SQL Editor AFTER 004, and do not run 004 again afterwards: it would bring back the old register_admin() without a code).
+  - RULE: the FIRST admin ever = main admin, no code needed, so the OWNER MUST BE THE FIRST to create the admin account after running 004 + 005 (whoever registers first becomes the main admin). Every later admin account stays a plain limited account (it cannot remove anyone and sees no alerts or staff list) until it types a ONE-TIME code made by the main admin. A code works for one account only, expires after 7 days, and only its hash is stored. 5 wrong codes lock the attempts of that account for 1 hour (the lock opens by itself). The main admin can still remove any admin (remove_account from 004, unchanged).
+  - CODE TYPE (owner did not choose, so the recommended one was built): one-time code per new admin. A fixed code was not built.
+  - SERVER: table admin_codes (no policy: the app cannot read it), new_admin_code() (main admin only, answers the code once, XXXXXX-YYYYYY, random from a uuid, 32 letters / digits), register_admin(p_code) now answers {ok, role, main, reason} (reason = code | locked); a wrong code is an answer, not an error, so the wrong-tries counter is saved; an empty code (a normal sign-in of a plain account) is not counted as a wrong try.
+  - APPS: the "create admin account" screen (hold the logo 7 s) has a new field "Admin activation code (the first admin leaves it empty)". Creating the admin account now works ONLY online like the teacher (release 53): sign up / sign in on the server, register_admin(code); only if the server accepts, the local admin account is made. New messages err_admin_code and err_admin_locked. Main admin: new button "New admin activation code" under the server staff list in the Teacher tab -> sheet with the code and a Copy button (shown once).
+  - FIXED (was a gap in releases 54 / 55): an admin sign-in never created the account on the server (ServerSync signed up only students and teachers), so register_admin was never reached. ServerSync now signs an admin up on the server too (as a plain account) on all three apps; a local admin from an older version becomes admin on the server at its next sign-in (the first one when no main admin exists yet; the others still need a code).
+  - 6 new keys on all three (same keys ar + en): adm_code_hint, adm_newcode, adm_newcode_note, adm_newcode_fail, err_admin_code, err_admin_locked. Android res/values + values-en/strings_v57.xml, iPhone Localizable.strings, Windows JSON regenerated (check OK).
+  - Changed: Android AdminControl.kt, ServerSync.kt, LoginActivity.kt, AdminActivity.kt; iPhone Core/AdminControl.swift, Core/ServerSync.swift, Screens/LoginView.swift, Screens/Admin/AdminStaff.swift (Xcode project regenerated, build 30); Windows Core/AdminControl.cs, Core/ServerSync.cs, Views/LoginView.xaml(.cs), Views/Admin/AdminShell.cs.
+  - NOT run: 005 was written without a Postgres here (never executed; test_005 was not written), and Kotlin / Swift / C# were not compiled (no toolchains); braces and string keys were checked by script. Please run 004 then 005 in Supabase, build with GitHub Actions and test: owner creates the admin account first (= main), a second admin account with no code = refused, with a wrong code = refused, with a fresh code = admin + alert, the same code again = refused, and the main admin can remove that admin.
+  - STILL OPEN: a tray option on Windows (alerts only while the app is open); Windows / Android / iPhone local admin screens still work on local data (the code protects the server rights, not files already on a device).
+
+release 56 (windows 0.9.0, android 1.8.21, ios 1.9.9) - 2026-11-24
+  - WINDOWS: admin control, same rules as Android release 54 / iPhone release 55 (the same server file 004_admin_control.sql serves all three, run it once).
+  - New: Core/AdminControl.cs (server calls: my_status, register_admin, log_entry, staff_list, events, remove_account, mark_events_seen; removed-account check; alert timer), Views/AlertToast.cs (small topmost card for alerts). Changed: Core/ServerSync.cs (entered() hooks for admin / teacher, already-linked sign-in only logs "signin", owner email now kept on disk in server_email.txt so the removed check works after a restart, SignOut stops the alerts), Core/Store.cs (DeleteAdmin), Views/Admin/AdminShell.cs (alerts card on the Dashboard, staff list with Remove in the Teacher tab), MainWindow.xaml.cs (check when the teacher / admin side opens and each time the window is activated; removed account -> sign-in screen + message), strings json regenerated (21 keys from strings_v54.xml, same keys ar + en), csproj 0.9.0.
+  - Remote.ApiAsync was already internal, so Remote.cs is unchanged. All sign-out buttons already call ServerSync.SignOut, which now also stops the alerts, so no screen needed a new hook.
+  - REMOVED ACCOUNT: with internet, when a removed teacher / admin opens the side or brings the window to the front (at most once every 15 s), my_status says removed -> session cleared, local teacher / admin deleted, server sign-out, message acct_removed, sign-in screen. Without internet nothing happens.
+  - ALERTS (main admin only): a timer asks the server every minute while the app is open and shows a small card at the bottom corner for 8 seconds; last_event is kept after sign-out. IF THE APP IS CLOSED THERE IS NO NOTIFICATION ON WINDOWS (no push). A tray / minimize-to-tray option would fix it but was not built (it needs more code and a NotifyIcon).
+  - NOT INCLUDED (asked by the owner, needs a new server file): an admin activation code (a new admin stays limited until a code activates the account). Waiting for the owner's choice: one fixed code vs a one-time code per new admin.
+  - FOUND ON ANDROID + IPHONE (not changed here): the admin sign-in never creates the account on the server (ServerSync signs up only students and teachers), so register_admin runs only if that email already exists on the server. The activation-code step must also sign the admin up on the server.
+  - KNOWN LIMITS: (1) anyone who reaches the admin sign-up (hold the logo 7 s, or call the server directly) becomes an admin on the server; the main admin is alerted and removes them; a removed person can come back with another email (the activation code is meant to fix this). (2) Content (chapters / lessons) is still local on each device, so removing an account stops server rights but does not delete files already on that person's device. (3) Alerts: Android about every 15 minutes (JobScheduler), iPhone local and decided by iOS, Windows only while the app is open.
+  - NOT run: C# was not compiled (no .NET SDK here); braces and string keys were checked by script. 004 was never run on a real Postgres. Build with GitHub Actions and test: first admin = main, second admin = alert + Remove, removed teacher = signed out as soon as the app opens with internet.
+
+release 55 (windows 0.8.9, android 1.8.21, ios 1.9.9) - 2026-11-24
+  - IPHONE: admin control, same rules as Android release 54 (see that entry; the same server file 004_admin_control.sql serves both, run it once).
+  - New: Core/AdminControl.swift (server calls, check on open, notifications), Screens/Admin/AdminStaff.swift (staff list with Remove + dashboard alerts). Changed: ServerSync.swift (3 hooks + reset on sign-out), RootView.swift (check after the splash and each time the app comes to the front), Store.swift (deleteAdmin), Remote.swift (api is no longer fileprivate), AdminTabs.swift (alerts on the dashboard, staff list in the Teacher tab, AdminChip no longer private), NexoraEduApp.swift (registers the background task), Info.plist (BGTaskSchedulerPermittedIdentifiers + UIBackgroundModes fetch), Localizable.strings ar + en (21 keys, same keys as Android strings_v54.xml). Xcode project regenerated (build 29).
+  - NOTIFICATIONS: local notifications only (no push server, and an unsigned / sideloaded IPA cannot use Apple push anyway). They appear when the app is opened or comes to the front, and when iOS runs the background refresh, which iOS decides (often every few hours, sometimes not at all). Android is much closer to every 15 minutes. The main admin should open the app now and then.
+  - Windows is NOT done yet.
+  - NOT compiled here (no Xcode / Swift): braces checked by script, the Xcode project check is OK.
+
+release 54 (windows 0.8.9, android 1.8.21, ios 1.9.8) - 2026-11-24
+  - ANDROID ONLY (iPhone and Windows later, same rules): admin control.
+  - MAIN ADMIN: the FIRST account that becomes admin on the server is the main admin (register_admin, one winner even if two try at once). If an admin was promoted by hand before, the oldest one becomes the main admin when 004 is run.
+  - REMOVE: an admin can remove a teacher; only the main admin can remove another admin; nobody can remove themselves or the main admin (the server refuses, not the app). A removed account keeps its row (history stays) but loses every right at once (active = false, removed_at / removed_by saved). Its teacher code stays used.
+  - SIGNED OUT: when a removed teacher / admin opens the app WITH internet, ShellActivity.onResume -> AdminControl.guard asks my_status; removed -> session cleared, local teacher / admin account wiped (Store.deleteTeacher / new Store.deleteAdmin), server sign-out, message acct_removed, sign-in screen. Without internet the person can still open the app on their own phone, but the server gives them nothing.
+  - ALERTS to the main admin: a teacher or an admin signing up or signing in is written to security_events (role / email / name come from the server profile, never from the app; a repeated sign-in within 30 minutes is one alert; the main admin's own sign-ins are not logged). Shown on the admin Dashboard (list + Remove + Mark all as read) and as a phone notification (no Firebase: a JobScheduler job every 15 minutes while the main admin is signed in, plus a check each time the app opens). Android 13+ asks the notification permission once.
+  - ADMIN SCREEN: Teacher tab has a new list "Teacher and admin accounts on the server" with a Remove button per row. The old local buttons (change password, delete local teacher) are unchanged.
+  - New files: server/supabase/004_admin_control.sql (run it in the SQL Editor after 001..003), Android AdminControl.kt (also holds AlertJob). Changed: ServerSync.kt (3 hooks + reset on sign-out), ShellActivity.kt (1 line in onResume), AdminActivity.kt (dashboard alerts + staff list), Store.kt (deleteAdmin), AndroidManifest.xml (POST_NOTIFICATIONS, RECEIVE_BOOT_COMPLETED, AlertJob service), strings_v54.xml (ar + en, 21 keys, same keys).
+  - KNOWN LIMITS: (1) anyone who reaches the admin sign-up (hold the logo 7 s, or call the server directly) becomes an admin on the server at once; the main admin is alerted and removes them. A removed person can come back with another email. Safer option for later: new admins wait for the main admin's approval. (2) A notification can arrive up to ~15 minutes late when the app is closed (Android limit without Firebase). (3) Content (chapters / lessons) is still local on each phone until the wiring steps, so removing an account stops server rights (grants, uploads, paid playback) but does not delete files already on that person's own phone.
+  - NOT run: 004 was written without a Postgres here (not tested), and Kotlin was not compiled (no toolchain); braces and resource names were checked by script. Please run 004 in Supabase, then build with Actions and test: first admin = main, second admin account = alert + Remove.
+
+release 53 (windows 0.8.9, android 1.8.20, ios 1.9.8) - 2026-11-24
+  - ALL THREE: owner rule - an ACCOUNT CAN BE CREATED ONLY ONLINE. Student sign-up and teacher sign-up (both teacher paths: sign-up and first sign-in with a code) now ask the server FIRST (ServerSync.register / RegisterAsync): sign up on Supabase (or sign in if the account is already there, e.g. a retry), and for a teacher claim the teacher code. Only when the server accepted does the app create the local account and open. No internet or server refused -> new message err_need_net; teacher code the server does not know -> existing err_tcode_invalid. The button ignores a second tap while waiting.
+  - Signing IN to an account that already exists still works WITHOUT internet (local check, unchanged); when online it is also mirrored to the server in the background (release 52).
+  - If no server is configured (Remote.enabled false) sign-up works locally as before.
+  - Teacher codes must exist on the server (insert into teacher_codes, tools/gen_teacher_codes.py makes them) or no teacher can sign up. Supabase "Confirm email" must be OFF.
+  - ONE new string on all three (err_need_net, ar + en, same key): Android res/values + values-en/strings_v53.xml, iPhone Localizable.strings, Windows JSON regenerated (check OK).
+  - Not compiled here (no toolchain): braces / references checked by script.
+
+release 52 (windows 0.8.8, android 1.8.19, ios 1.9.7) - 2026-11-24
+  - ALL THREE: WIRING STEP 1 - sign-in / sign-up / teacher code now also go to Supabase. New file ServerSync (Android ServerSync.kt, iPhone Core/ServerSync.swift, Windows Core/ServerSync.cs). The LOCAL login / sign-up is unchanged and still decides who gets in; right after it succeeds the account is mirrored in the background: Remote.signIn -> if the account is not on the server yet, Remote.signUp (student data: name, phone, grade) -> teacher with a code: Remote.claimTeacher (code sent as XXXXXX-YYYYYY). Admin: sign-in only (the admin role is set by hand on the server).
+  - Silent: no new screen, no new string (ar + en still identical). A server that is not ready (SQL not run) or offline changes nothing. Logout also signs out of the server (all logout buttons).
+  - Hooks (one line each): LoginActivity / LoginView / LoginView.xaml.cs (admin, teacher, student sign-in, student sign-up); logout in ShellActivity, Shell.swift, StudentShell / TeacherShell / AdminShell / SettingsPage.
+  - Existing users are mirrored the next time they type their password. A teacher who signed up locally BEFORE the server was ready has no code left to claim: promote by hand on the server (update profiles set role='teacher' ...).
+  - NOT DONE (next wiring steps): 2 = chapters / lessons / students to the server with serverId (Remote has no create-chapter / create-lesson call yet) and Access.canView -> Remote.access (needs a cache because canView is synchronous); 3 = Payments.start -> PaymentFlow; 4 = upload / play (TeacherActivity ~601, UploadVideoActivity, UploadVideoWindow, TeacherSheets ~472); 5 = grants / revoke from the teacher Paid-content screen; 6 = WhatsApp code.
+  - Not compiled here (no Kotlin / Swift / .NET toolchain): braces and references checked by script. The Xcode project was regenerated.
+
+release 51 (windows 0.8.7, android 1.8.18, ios 1.9.6) - 2026-11-24
+  - ALL THREE: Supabase project connected. Remote.BASE_URL / baseURL / BaseUrl = https://xgwfxzbutkkauxilcpzf.supabase.co and the PUBLISHABLE key (sb_publishable_..., safe to ship; never put the secret / service_role key in an app). `Remote.enabled` is now true. Remote is still wired only to the admin Storage screen: sign-in, sign-up, lessons, payment are still local until the wiring step.
+  - Versions raised only because the constants changed. No new strings, no screen change.
+
+release 50 (windows 0.8.6, android 1.8.17, ios 1.9.5) - 2026-11-24
+  - ANDROID ONLY: the teacher now has 5 tabs like iPhone and Windows (Home, Students, Content, Tests, Profile). The profile (role + email) is the 5th tab instead of opening from the header. iPhone and Windows already had 5 tabs: unchanged. No new strings (tab_profile already existed).
+  - Plan for the WhatsApp code (steps 2-4): server (table + 2 Edge Functions), the three apps, setup + tests. The code length is 8 digits (OtpConfig.CODE_LENGTH) - to be set on all three in step 3.
+  - Not compiled here: braces / resource names checked only.
+
+release 49 (windows 0.8.6, android 1.8.16, ios 1.9.5) - 2026-11-24
+  - IPHONE + WINDOWS, same changes as Android release 48. Splash: no glass plate / beads / ripples, the icon alone, shorter (2.6 s). Teacher = purple (tp1 #7C3AED on both; on the sign-in screen the whole card turns purple when Teacher is picked). Settings is now a full screen (profile, language, appearance, colours as a live preview + round swatches) instead of a sheet; no new strings.
+  - iPhone only: floating header capsule with a round gear button and a floating frosted bottom capsule (content scrolls under it). Windows keeps its sidebar (no capsules on desktop); new Views/SettingsPage.cs, opened from MainWindow.OpenSettings (covers the whole window, Esc closes).
+  - Not compiled (no Swift / .NET toolchain): braces checked by script, XAML parses. Test on a real iPhone and on Windows.
+
+release 48 (windows 0.8.6, android 1.8.16, ios 1.9.5) - 2026-11-24
+  - ANDROID ONLY (iPhone and Windows not changed yet): splash without the glass plate and the two beads (fewer particles, lighter); teacher = purple on the login screen (indicator, checkbox, button, glow) and tp1 is now purple #7C3AED; bottom capsule is frosted (almost opaque, new drawable cap_frost); top capsule is taller and its gear button is round; settings screen redone (profile card, language, appearance, and the colours now sit INSIDE the screen as a live preview + round swatches instead of a sheet; the palette button in the header is gone). No new strings.
+  - Not compiled here: XML parses, braces balance, every drawable / colour referenced exists. Test on the phone.
+
+release 47 (windows 0.8.6, android 1.8.15, ios 1.9.5) - 2026-11-24
+  - ANDROID BUILD FIX: the 11 accent styles in app/src/main/res/values/themes.xml (Accent.ocean ... Accent.slate) now have parent="". Before, the dotted name made Android look for a parent style called "Accent", which does not exist, so the build failed with "resource style/Accent not found". Windows and iPhone are unchanged.
+
+release 46 (windows 0.8.6, android 1.8.15, ios 1.9.5) - 2026-11-24
+  - IPHONE + WINDOWS: sound effects, the same ones Android got in release 45. Android is unchanged (same android.zip).
+  - Same 18 sounds, same names and same volumes: the .wav files are the Android ones (tap, tab, select, on, off, open, close, notice, success, error, delete, locked, play, pause, skip, pass, fail, splash). No new strings, no new screen, no layout or colour change; ar / en strings are still identical on all three apps.
+  - iPhone: new Core/Sfx.swift (AVAudioPlayer, "ambient" audio session = follows the silent switch and keeps the user's music playing; the video player's "playback" session is put back to "ambient" when the player closes) + Resources/Sfx/sfx_*.wav. Hooks (one line each): every Button gets the tap sound through `.sfxTap()` (a real tap only, not a scroll), cards / rows (`tappable`), segmented control, chips, tabs, switches (`Binding.sfx()`: on / off), sheet open / close, toast (success / error / notice chosen from the name of the string, same rule as Android), delete confirm, locked lesson, login error / success, OtpView right / wrong code, exam option, pass / fail result, homework sent, video play / pause / skip / full screen, splash. App entry starts the sounds. tools/gen_xcodeproj.py: .wav type added, version 1.9.5 build 25, project regenerated (--check OK).
+  - Windows: new Core/Sfx.cs (MediaPlayer: sounds can overlap and each has its volume; the .wav files are EMBEDDED in the exe because the build ships one file, and are copied once to %TEMP%\NexoraEdu-sfx at start) + Resources/Sfx/*.wav (csproj: EmbeddedResource). One class handler (App.OnStartup -> Sfx.Hook) gives every button, tab / chip, check box (on / off) and clickable card its sound. Hooks (one line each): Ui.Sheet open / close (Notice = message, plays its toast sound only), delete confirm, locked lesson, login error / success, OtpView right / wrong code, exam option, pass / fail, homework sent, video play / pause / skip / full screen (VideoWindow and UploadVideoWindow), splash. Core/Strings.cs: new `KeyOf` (text -> string name) used only to choose the sound of a message.
+  - Differences from Android (on purpose / no equivalent): Windows has no silent mode and no "touch sounds" switch, so the sounds always play at the Windows volume; the 3.3 s launch sound has its burst at 2.26 s as on Android, but the iPhone / Windows splash animations are not timed to it (icon at 0.35 s, shine at 0.9 s).
+  - Not compiled and not heard here (no Swift / .NET toolchain, no device): braces / parentheses checked by script, Xcode project checked with gen_xcodeproj.py --check. To test: sounds on a real iPhone (ringer on, then silent), the video screen then back to a normal screen (sounds must still follow the silent switch), and on Windows the first sound after start (MediaPlayer may need a moment to open the files).
+
+release 45 (windows 0.8.5, android 1.8.15, ios 1.9.4) - 2026-11-24
+  - ANDROID ONLY: sound effects for the whole app, and a cleaner build file. Windows and iPhone are unchanged.
+  - New: Sfx.kt (one SoundPool, loads the sounds once, follows silent mode and the system "Touch sounds" switch), 18 short sounds in app/src/main/res/raw/sfx_*.wav (about 0.55 MB), made by tools/make_sfx.py (synthesized, nothing copied from anywhere).
+  - Hooks (one line each): Glass.kt pressable (tap on a real release), ShellActivity (toast = success / error / notice by the string name, tab change, sheet open / close, delete confirm, locked lesson), Widgets.kt (segmented control, chips, check box), Ui.kt glassSwitch (on / off), LoginActivity (error / success), OtpView (right / wrong code), StudentActivity (exam option, pass / fail result, homework sent), VideoActivity (play, pause, skip, full screen), PdfActivity (missing file), SplashActivity (3.3 s launch sound, the burst matches the icon flash), BaseActivity (Sfx.init).
+  - No new strings, no new screen, no layout or colour change; ar / en strings are still identical.
+  - Build file (.github/workflows/build.yml): Android job now has a 30 minute limit, --stacktrace, a listing of the APK and fails if no APK is found; a separate Android-only package carries its own build file that builds the project at the repo root.
+  - Not compiled here (no Kotlin toolchain): the Kotlin edits, the res/raw ids and the string / id references were only checked by script (every R.* used exists, XML parses, braces balance).
+
+release 44 (windows 0.8.5, android 1.8.14, ios 1.9.4) - 2026-11-24
+  - Step 3 of 3, PART 4 of 4: server/supabase/STORAGES_SETUP.md (R2 account, private bucket, bucket-only API token, Secrets, deploy of the four Functions with the CLI, pg_cron schedule for purge-deleted, first storage row, first test, second storage). Warning at the top: R2 has no spending cap and asks for a payment method; the free 10 GB is per Cloudflare account; our 8 GiB limits live in the database.
+  - No app code changed (app versions stay). Written from the repo files and R2 pages read today; nothing was run against a real R2 bucket or Supabase project.
+
+release 43 (windows 0.8.5, android 1.8.14, ios 1.9.4) - 2026-11-24
+  - Look and animations of the Storage screen made to match the rest of each app (no other change; iPhone code is unchanged because it already used CardBox / PrimaryButton / the same sheet).
+  - Android: the storage rows are now the app's own item_card (status line, name, bar, numbers) instead of a hand-made card; the list gets walkPress (press animation) and staggerIn (rows slide up one after the other) like every tab; the form and the retry button get walkPress too.
+  - Windows: the storage cards use the default Card margin like all other cards.
+  - Not compiled here (no toolchain).
+
+release 42 (windows 0.8.4, android 1.8.13, ios 1.9.4) - 2026-11-24
+  - Server step 3 of 3, PART 3 of 4 on ANDROID and WINDOWS (the iPhone got it in release 41). Same functions, same screen, same 25 strings (ar + en, same keys) on all three apps.
+  - Android Remote.kt (new code inside object Remote): uploadVideo (upload-url -> PUT with the exact reserved size and progress -> upload-complete, retry on network / 502, cancel frees the reservation), playUrl (link / locked / no file / failed), storages (read), updateStorage (admin). ONE existing line changed in http(): "PATCH" is set through patchMethod() because HttpURLConnection refuses PATCH (needed to edit a storage); every other method works exactly as before.
+  - Windows Core/Remote.cs (new code inside class Remote): UploadVideoAsync (same flow, CancellationToken + IProgress), PlayUrlAsync, StoragesAsync, UpdateStorageAsync (HttpMethod PATCH works as it is).
+  - AdminActivity.kt / AdminShell.cs: new "Storage" button in the admin account tab -> sheet with one usage bar per storage (used + reserved / limit), On/Off tag, "reserved" line; tapping a row opens name / limit (GB) / order / on-off. The server refuses a limit above its own cap; no R2 key, endpoint, bucket or size cap inside the apps.
+  - Strings: Android res/values + values-en/strings_storage.xml (new files); Windows strings.ar/en.json regenerated with tools/gen_resources.py from the Android res (only the 25 new keys were added). Versions: android versionCode 23 / 1.8.13, windows 0.8.4.
+  - NOT DONE: uploadVideo / playUrl are not wired to any screen (UploadVideoActivity, UploadVideoWindow and the iOS copy in TeacherSheets still copy the file locally); STORAGES_SETUP.md (part 4). Not compiled here (no Kotlin / .NET / Swift toolchain): braces, XML and string keys checked only. The PATCH trick on Android (reflection) and the 502 / retry paths were never run.
+
+release 41 (windows 0.8.3, android 1.8.12, ios 1.9.4) - 2026-11-24
+  - Server step 3 of 3, PART 3 of 4, iPHONE ONLY (Android and Windows are NOT done yet).
+  - Core/Remote.swift (added at the end, nothing changed above): uploadVideo (upload-url -> PUT of the file with the exact reserved size and progress -> upload-complete, retry on network / 502, cancel frees the reservation), playUrl (temporary link or ytId; locked / noFile / failed), storages (read) and updateStorage (admin: name, limit, on/off, order). Errors: full, off, tooBig, failed. No R2 key, endpoint, bucket or size cap inside the app.
+  - Screens/Admin/AdminTabs.swift: new "Storage" button in the admin account tab and StorageSheet: one usage bar per storage (used + reserved / limit), On/Off tag, "reserved" line; tapping a row (admin only) opens a form for name, limit (GB), order and on/off. The server refuses a limit above its own cap.
+  - 25 new strings (adm_storage, st_*, up_err_full / up_err_off / up_err_big / up_err_fail, up_cancelled, pl_err_locked / pl_err_nofile / pl_err_fail) in ar + en, same keys; Remote.playMessageKey gives the key for a play problem. Xcode project regenerated (ios 1.9.4, build 24).
+  - NOT DONE: uploadVideo / playUrl are not wired to the screens (the old local copy in TeacherSheets still runs); Android + Windows copies; STORAGES_SETUP.md. Not compiled here (no Swift toolchain), braces and string keys checked only.
+
+release 40 (windows 0.8.3, android 1.8.12, ios 1.9.3) - 2026-11-24
+  - Server step 3 of 3, PART 2 of 4 (the four Edge Functions for the R2 storages). New server files only; no app screen, string or code changed (only the version numbers were raised).
+  - server/supabase/functions/_shared/r2.ts: the limits (1 GiB per file, 8 GiB per storage / account, same numbers as 003_storages.sql) and AWS Signature V4 for R2 written with WebCrypto (presigned PUT with a SIGNED Content-Length, presigned GET, HEAD, DELETE, paged list). The presign core matches the official AWS example vector; HEAD / DELETE / list were tested against a mock only. R2 keys are read ONLY from secrets <secret_name>_ACCESS_KEY_ID / _SECRET_ACCESS_KEY; nothing is logged.
+  - upload-url (JWT ON): teacher id from the verified token, reserve_upload, presigned PUT (size signed, lifetime 1 hour); gives the space back if no link can be made.
+  - upload-complete (JWT ON): the reservation must belong to the caller; HEAD on the object and the real size goes to complete_upload; a rejected object is deleted at once (purge-deleted does it later if that fails); {cancel:true} deletes the object if it landed and releases the reservation.
+  - play-url (JWT ON): play_source() through the user's own token (can_view_lesson, 42501 -> 403), then a presigned GET valid 3 hours; YouTube lessons return the ytId; a switched-off storage still plays.
+  - purge-deleted (scheduled, JWT OFF, protected by the header x-purge-secret = secret PURGE_SECRET): expire_reservations, delete queue (404 = done; queue_done only after R2 confirmed), list every bucket, delete orphan objects under v/ older than 3 hours, reconcile_storage with the real total (a failed listing skips that storage), storage_prune.
+  - Syntax checked with esbuild only. NOT deployed, NOT run against Supabase or R2. 003_storages.sql and its tests are STILL not run (see HANDOFF.md).
+  - NOT DONE (parts 3-4): Remote.uploadVideo / playUrl + the read-only Storage screen (ar + en) on the three apps; STORAGES_SETUP.md. Wiring Remote into the screens (steps 1 and 2) is still open.
+  - No new screens, no new strings. Not compiled here (no Kotlin / Swift / .NET toolchain). The Xcode project was regenerated (only MARKETING_VERSION / CURRENT_PROJECT_VERSION changed).
+
+release 39 (windows 0.8.2, android 1.8.11, ios 1.9.2) - 2026-11-23
+  - Server step 3 of 3, PART 1 of 4 (storages on Cloudflare R2: the hard limit). New server files only; no app screen, string or code changed (only the version numbers were raised).
+  - server/supabase/003_storages.sql: table storages (endpoint, bucket, account_ref, secret_name = only the NAME prefix of the secrets, limit, used, reserved, active, order), upload_reservations, stored_files, file_delete_queue, storage_log. R2 has no spending cap, so the limit is ours: 8 GiB per storage (CHECK: nobody can raise it, not even the admin), 8 GiB per Cloudflare account (storages sharing account_ref share ONE free 10 GB), 1 GiB per file, max 3 open reservations per teacher.
+  - Atomic space reservation (reserve_upload: per-account advisory lock + conditional UPDATE, first active storage with room, refuses with reason "full"), expiry of abandoned reservations after 2 hours, complete_upload with the REAL size (a bigger / late / orphan file is counted, queued for deletion and refused), release_upload.
+  - Delete queue: deleting a lesson (cascade), clearing or replacing its file queues the old file; used_bytes only goes down in queue_done (after R2 confirmed the delete), idempotent; queue_fail (10 tries, then "dead" and it keeps counting).
+  - reconcile_storage: compares our counter with the real bucket size; switches the storage OFF if the real size is within 512 MiB of the limit or the numbers disagree by more than 256 MiB (+ what is in flight); switches off every storage of an account whose total is within 512 MiB of 8 GiB. storage_prune for housekeeping.
+  - Triggers: storages_guard (no statement can raise reserved_bytes above the limits, even from the dashboard); sources_storage_guard (a teacher can no longer attach ANOTHER lesson's file to his lesson through the step 1 write policy on lesson_sources).
+  - Permissions: teacher + admin READ the safe columns of storages only (no endpoint / bucket / account / secret name); admin may edit name, limit (never above 8 GiB), on/off, order; used / reserved are never writable from the app; all functions are service_role only; the other four tables are closed to the app.
+  - server/supabase/test_003.sql (permissions, every limit, reservation, complete, oversize, expiry, queue, delete-lesson, reconcile) and test_003_race.sh (8 teachers ask for the last 3 GiB at once; exactly 3 must land). The race script passed bash -n only.
+  - NOT RUN: this environment has no Postgres and no network, so 003_storages.sql, test_003.sql and test_003_race.sh were written and re-read line by line but NOT executed. Run them first (see HANDOFF.md) and fix anything they report before part 2.
+  - NOT DONE (parts 2-4): the Edge Functions upload-url / upload-complete / play-url / purge-deleted; Remote.uploadVideo / playUrl + the Storage screen (ar + en) on the three apps; STORAGES_SETUP.md. Wiring Remote into the screens (steps 1 and 2) is still open.
+  - No new screens, no new strings. Not compiled here (no Kotlin / Swift / .NET toolchain). The Xcode project was regenerated (only MARKETING_VERSION / CURRENT_PROJECT_VERSION changed).
+
+release 38 (windows 0.8.1, android 1.8.10, ios 1.9.1) - 2026-11-23
+  - Server step 2 of 3 (electronic payment with Paymob). New files only (plus filling the PaymentFlow skeleton added in release 36); no existing screen or string changed.
+  - server/supabase/002_payments.sql (+ test_002.sql): orders (the server decides the amount), order_status, fulfill_order (idempotent; opens the content with mode "online" and writes the log), refund_order (closes the online grant), mark_order. Only the server can mark an order paid. Tested on a local Postgres 16 (student cannot fulfill or edit orders; pay opens the lesson; second webhook does nothing; refund locks again; log has 2 online lines).
+  - server/supabase/functions/create-order and functions/paymob-webhook (Deno / TypeScript): create-order takes the price from the tables and calls Paymob's Intention API, returning the checkout link; paymob-webhook checks the HMAC-SHA512 (20 ordered fields) and then opens / closes the content. Syntax checked only; NOT deployed and NOT run against Paymob.
+  - PaymentFlow (Remote.kt / Core/Remote.swift / Core/Remote.cs): createOrder, open, statusOnce, pollStatus. Not wired to any screen; Payments.start still returns false.
+  - server/supabase/PAYMENTS_SETUP.md: the owner's steps (Paymob keys, SQL, two functions, secrets, one test payment). HANDOFF.md updated.
+  - NOT DONE: wiring PaymentFlow + Remote into the existing screens (with new ar + en strings for failed / refunded); orders list for the teacher; step 3 (R2 storages, 9 GB limit each); upload-player controls; admin paid videos.
+  - No new screens, no new strings. Not compiled here (no Kotlin / Swift / .NET toolchain).
+
+release 37 (windows 0.8.0, android 1.8.9, ios 1.9.0) - 2026-11-23
+  - Server step 1 of 3 (accounts / content / lock / manual grants) on Supabase. New files only; no existing screen or string changed.
+  - server/supabase/001_accounts.sql (+ test_001.sql): profiles, teacher codes (each works once on any device), chapters, lessons, lesson_sources, grants, append-only grant_log, one decision function, access_lesson, play_source, teacher_grant / teacher_revoke, row level security. The lock is in the database: a student without a grant cannot read the video source. Tested on a local Postgres 16 with a stub auth schema (all checks passed).
+  - Remote.kt / Core/Remote.swift / Core/Remote.cs (the release 36 skeletons) now make real Supabase calls: signIn, signUp, claimTeacher, access, playSource, grant, revoke, deleteVideo, token refresh. Constants for the project URL and anon key are empty on purpose. PaymentFlow stays a skeleton (step 2).
+  - HANDOFF.md (new): what is done and what is left, so another session can continue exactly here.
+  - NOT DONE: wiring Remote into the existing screens + id mapping; step 2 (Paymob); step 3 (R2 storages with a 9 GB limit each); upload-player controls; admin paid videos.
+  - No new screens, no new strings. Not compiled here (no Kotlin / Swift / .NET toolchain); the SQL was run on Postgres 16 only.
+
+release 36 (windows 0.7.9, android 1.8.8, ios 1.8.9) - 2026-11-23
+  - Audit of the request against release 35: video from YouTube link / uploaded file, Free/Paid price per video and per course, local lock, manual cash/free opening with a permanent log: ALREADY IN release 35, left untouched. Existing areas (students/classes, PDF, exams, notifications, language, themes, account, customization): untouched.
+  - Added only what was missing, as new files (no existing code or string changed):
+    * SERVER_SPEC.md (package root): the server contract (access check, protected play endpoint, grants + log, permanent links, delete by teacher only, orders + payment webhook).
+    * Android `Remote.kt`, iPhone `Core/Remote.swift`, Windows `Core/Remote.cs`: skeleton `Remote` (access / playSource / grant / deleteVideo) and `PaymentFlow` (createOrder / open / pollStatus). Same names on the three. NOT wired to any screen, so app behaviour is the same as release 35. Each function is empty and says in a TODO what must be done.
+  - STILL NOT DONE: (1) the server itself (the lock is still local only); (2) one chosen payment provider + automatic opening after confirmed payment; (3) uploaded-video player controls (speed / skip / resume); (4) real upload to a server; (5) admin side adding paid videos; (6) wiring `Remote` into the existing screens when the server is ready.
+  - No new screens, so no new strings (ar + en unchanged). Version raised: release 36, windows 0.7.9, android 1.8.8 (code 18), iPhone 1.8.9 (build 19, project regenerated).
+  - Not built here: no Kotlin, Swift or .NET toolchain. Compile with Actions. Not tested on a device.
+
+release 35 (windows 0.7.8, android 1.8.7, ios 1.8.8) - 2026-11-23
+  - Video sources (all three apps): the teacher adds a video (stand-alone or inside a chapter) either from a YouTube link (title + thumbnail imported through oEmbed when online, shown in the existing in-app YouTube player) or by uploading a video file (kept in the app's own storage, no expiry; only the teacher deleting the video removes it).
+  - Price: every video and every course (chapter) is Free or Paid with a price in EGP. Teacher: Free / Paid chips in the add + edit sheets, "Course price" action on a chapter.
+  - Lock: a paid lesson shows a lock + price to the student and opens a "Paid content" sheet instead of the player. ONE function decides (Android `Access.canView`, iPhone `Access.canView`, Windows `Access.CanView`).
+  - Manual opening: teacher -> student page -> "Paid content": open a course / video for that student as "cash" or "free". Every opening goes to a permanent log (who, for whom, when); removing the access keeps the log line.
+  - Strings: new `strings_v35.xml` (ar + en) on Android, generated into Windows JSON, appended to iPhone Localizable.strings.
+  - NOT DONE (skeletons, marked TODO in code): (1) server-side lock: the check is local only, so it only hides content in the app; (2) electronic payment: `Payments.start` returns false and the screen shows "coming soon"; (3) uploaded-video players are basic (no speed / skip / resume); (4) upload goes to local storage, not a server; (5) admin side still adds YouTube videos only (free).
+  - Existing areas (students/classes, PDF, exams, notifications, language, themes, account, customization): unchanged in this release.
+  - Not built here: no Kotlin, Swift or .NET toolchain. Compile with Actions. Not tested on a device.
+
+release 34 (windows 0.7.7, android 1.8.6, ios 1.8.7) - 2026-11-23
+  - Themes sheet on all three apps: rounded gradient tiles (2 per row, theme name inside in white, ring + tick on the chosen one) instead of circles. Same theme ids and colours. Android `colorSheet`, iPhone `ThemesSheet` (Core/Accents.swift), Windows `Ui.OpenThemes`.
+  - iPhone version number not raised (no Xcode project regeneration here).
+  - Not built here: no Kotlin, Swift or .NET toolchain. Compile with Actions. Not tested on a device.
+
+release 33 (windows 0.7.6, android 1.8.5, ios 1.8.7) - 2026-11-23
+  - Android: teacher can now edit an announcement (pencil button or tap the row), like iPhone and Windows. The posting date is kept.
+  - Android: themes like iPhone and Windows. The "App colour" row in Settings is removed; a palette button in the Settings header opens a themes sheet titled "Themes" (3 per row, chosen one ringed with a bold name, close link). Same theme ids and colours.
+  - iPhone and Windows: no change.
+  - Still open from the parity review: Windows teacher home and student detail, Windows student profile rows, phone not checked when a student edits it, rename class / teacher edit student only on Windows.
+  - Not built here: no Kotlin toolchain. Compile with Actions. Not tested on a device.
+
+release 32 (windows 0.7.6, android 1.8.4, ios 1.8.7) - 2026-11-23
+  - Phone number is now required on teacher sign-up (Android + Windows). Before it was optional there. It uses the same PhoneRules check as the student sign-up (Egyptian mobile or +international), the message is written under the field, and the normalized number is stored.
+  - The "(optional)" tag next to the phone field is removed (Android `optPhone` is always hidden, Windows label).
+  - Student sign-up already required the phone in all three apps: unchanged. Admin and sign-in screens: unchanged.
+  - iPhone: the teacher sign-up now has the phone field too, and it is required (before there was no field at all). Same PhoneRules check and message under the field as the student. `TeacherAccount` gets `phone` (old saved accounts load with an empty phone), `Store.setTeacher(email:password:name:phone:)`. The iPhone version number was not raised (no Xcode project regeneration here).
+  - Not built here: no Kotlin or .NET toolchain. Compile with Actions. Not tested on a device.
+
+release 31 (windows 0.7.5, android 1.8.3, ios 1.8.7) - 2026-11-23
+  - Android: no change (it already had both).
+  - iPhone + Windows: "confirm password" on sign-up, like Android (`hint_password_confirm`, `err_pw_mismatch`). iPhone: the field shows for a new student, a new teacher and the first admin account (before: first admin only); a mismatch is refused after the other checks. Windows: same for a new student and the first admin (before: first admin only).
+  - Windows: teacher sign-up with a new account, like Android. On the Teacher tab the "Create a new account" link now shows (before it was hidden); it opens: registration code, full name, email, phone (optional, not validated), password, confirm password. Checks in Android's order: email, a teacher account already exists, registration code, name, password 6+, confirm. Sign-in and the first-time sign-in (account made from email + password, code still needed) are unchanged.
+  - Windows: the teacher's name and phone are stored (`t_name`, `t_phone`, same keys as Android; `Store.SetTeacher(email, password, phone, name)`, `Store.TeacherName()`), and the name is shown as the teacher's name in the teacher shell and in the admin "Teacher" tab (email prefix when there is no name, as before). Changing the teacher password from the admin side keeps the name; deleting the teacher account removes name and phone too.
+  - Not done on purpose: the iPhone teacher sign-up still has no optional phone field (Android has it).
+  - Not built here: no Swift or .NET toolchain. Compile with Actions. Not tested on a device.
+
+release 30 (windows 0.7.4, android 1.8.3, ios 1.8.6) - 2026-11-23
+  - Teacher registration code: a teacher account can no longer be created without a code. The field "Teacher registration code" appears (Android + iPhone: when the teacher ticks "create a new account" or signs in for the first time; Windows: on the first teacher sign-in, while no teacher account exists) and is checked before anything else is saved. A teacher who already has an account signs in as before; students and admin are unchanged.
+  - How a code works: 6 random characters + 6 signature characters (HMAC-SHA256 of the first 6 with a secret string), written XXXXXX-YYYYYY, letters and digits without 0 O 1 I. The apps check the signature offline, so there is no server and no list to keep. Case, spaces and dashes are forgiven when typing. Each code works once per device (the used ones are remembered in `t_used_codes`).
+  - Making codes: `tools/gen_teacher_codes.py [count]` (new, root of the package; keep it private, it holds the secret). `--check CODE` tells if a code is valid. The secret is in four places that must match: the script, `TeacherCode.kt`, `Core/TeacherCode.swift`, `Core/TeacherCode.cs`. Changing it in all four cancels every code made before.
+  - Limits (no server): the same code can still be used once on each device; and the secret is inside the apps, so it protects against normal people, not against someone who takes the app apart. Real protection needs a server that hands out and burns codes.
+  - New strings (ar + en): hint_tcode, err_tcode_required, err_tcode_invalid, err_tcode_used (Android `strings_tcode.xml` + values-en, iPhone both `Localizable.strings`, Windows `strings.*.json`).
+  - iPhone: gen_xcodeproj.py 1.8.6 / build 16, project regenerated. Android versionCode 13. Windows 0.7.4.
+  - Not built here: no Android, Swift or .NET toolchain. Compile with Actions. Not tested on a device.
+
+release 29 (windows 0.7.3, android 1.8.2, ios 1.8.5) - 2026-11-23
+  - Phone verification, round 2 of 2: the phone field of the sign-up screen is connected to checks, and the entry animation is now glass.
+  - Phone rules (`PhoneRules`: `PhoneRules.kt`, `Core/PhoneRules.swift`, `Core/PhoneRules.cs`, same rules on all three): Egyptian mobile 01[0125]xxxxxxxx (also +20 / 0020 forms) or any international number "+" and 8-15 digits; Arabic-Indic digits, spaces, dashes, dots and brackets are accepted and cleaned. The cleaned number is what is stored.
+  - Required for a NEW STUDENT only. Empty = "err_phone_required", wrong = "err_phone_invalid", written under the phone field (red), the card shakes and the cursor goes to the field; the message also shows when leaving the field with a bad number, and goes away while typing. Teacher and admin screens are unchanged (Android teacher sign-up keeps the phone optional, with the "optional" tag shown only there). Sign-in is unchanged.
+  - Code check hooked to the sign-up: after all checks pass, `OtpView` opens before the account is created, only while `OtpConfig.PhoneOtpEnabled` is true. With the flag false (default) nothing opens and the account is created at once, as before. `PhoneVerifier.send/check` (same file as the rules) is the single place to connect an SMS backend; until then `check` never accepts a code, so do not turn the flag on without a backend.
+  - New strings (ar + en): err_phone_required, err_phone_invalid. Android `strings_phone.xml` (+ values-en), iPhone both `Localizable.strings`, Windows `strings.*.json`.
+  - Entry animation, about 3.4 s on all three (tap / click / key skips): colour orbs glow up (accent colours + violet), a frosted glass plate grows, the icon pops onto it with ripples, a shine sweeps across the glass, two glass beads float around it, then the name and tagline fade in. Android keeps its particle animation (dust forms the square, then the flask) and gets the glass plate and beads on top; its timeline now plays 1.3x faster (4.3 s -> 3.3 s, route after 3.65 s). iPhone and Windows were a plain 1.3 s fade, now the same glass animation (iPhone `SplashView.swift`, Windows `SplashView.xaml(.cs)`).
+  - Sign-in screens: drifting colour orbs behind the glass card (`GlassAurora` on iPhone, `Views/GlassAurora.xaml` on Windows; Android already had them) and a short entrance (the card rises and fades in; Windows plays it once per run, not after a language / theme change). Palette and accents are unchanged on purpose (same colours on all three).
+  - iPhone: `tools/gen_xcodeproj.py` 1.8.5 / build 15, project regenerated (PhoneRules.swift included). Android versionCode 12. Windows 0.7.3.
+  - Not built here: no Android, Swift or .NET toolchain. Compile with the GitHub Actions workflow. Not tested on a device; the animation timing and look need an eye on a real screen.
+
+release 28 (windows 0.7.2, android 1.8.1, ios 1.8.4) - 2026-11-23
+  - Phone verification, round 1 of 2: the code entry screen (OtpView) on all three apps. It was not in v27, so it is new, not finished: `OtpView.kt` (Android, bottom sheet), `Screens/OtpView.swift` (iPhone, `.otpSheet(...)` sheet), `Views/OtpView.cs` (Windows, sheet).
+  - Each has 6 code boxes (digits left to right also in Arabic), a wrong-code state (red boxes, shake, message), a verify button that is dimmed until 6 digits are typed, and a resend link that counts down 60 seconds for real (mm:ss) and then becomes tappable; resending clears the boxes and restarts the count.
+  - Hidden behind the flag `PhoneOtpEnabled = false` (`OtpConfig` in each OtpView file): while it is false nothing opens the screen. The screen is not connected to the sign-in screens yet: that is round 2. It also does not send or check codes by itself: the caller passes `verify` and `onResend` (the app has no server).
+  - New strings (ar + en): otp_title, otp_sub, otp_verify, otp_resend_in, otp_resend, otp_sent_again, otp_err_wrong. Android `strings_otp.xml` (+ values-en), iPhone both `Localizable.strings`, Windows strings regenerated from Android (`tools/gen_resources.py`; `Themes/Colors.*.xaml` were kept as they were: the script would delete the hand-added `cardGlass` brush).
+  - iPhone: `tools/gen_xcodeproj.py` was still at 1.8.1 / build 12, now 1.8.4 / build 14, project regenerated (new file included).
+  - Not built here: no Android, Swift or .NET toolchain. Compile with the GitHub Actions workflow. Not tested on a device.
+
+release 27 (windows 0.7.1, android 1.8.0, ios 1.8.3) - 2026-11-23
+  - App display name changed to "منصة الإبداع" on Android (app label, splash, login), iPhone (home-screen name, splash, login, permission texts) and Windows (window title, splash, sidebars). Display text only: folders, package/bundle ids, namespaces, file names and storage keys are unchanged.
+  - The brand text no longer uses letter spacing (it broke the joined Arabic letters); colours, layout and behaviour are unchanged.
+
+release 26 (windows 0.7.1, android 1.8.0, ios 1.8.3) - 2026-11-23
+  - iPhone teacher student cards now match Android's status-row pattern with a native on/off switch; access-code create/copy/regenerate actions and confirmed deletion are clearly separated.
+  - iPhone student detail screen uses the same active-state switch and retains progress, exam results and homework submissions.
+  - iPhone teacher announcements can be opened and edited; edits persist through the existing Android-compatible `ann` key.
+  - Reviewed shared iOS theme and common components across student, teacher and admin entry points for consistent role accents, light/dark glass surfaces, borders and controls. Navigation remains native to each platform.
+  - Swift source syntax parsed successfully with Swift 6.2.1; a full iOS build/signing verification requires Xcode on macOS. Windows and Android packages are unchanged from release 25.
+
+release 25 (windows 0.7.1, android 1.8.0, ios 1.8.2) - 2026-11-23
+  - Visual identity alignment using Android 1.8.0 as the reference: preserve the exact light/dark palette and role/accent colors across platforms.
+  - Windows: card surfaces now use the same translucent two-stop glass gradient and 24dp-style rounded corners as Android `card_glass`; selected navigation and primary actions retain the role/accent palette.
+  - iPhone: glass cards, chips and compact glass rows now use Android-matched glass opacity stops and a subtle top sheen; borders use the exact Android alpha values.
+  - Android app behavior and UI are unchanged; it remains the visual source of truth.
+  - Not built here: no .NET SDK or Xcode toolchain; run the existing GitHub Actions workflow before treating this release as build-verified.
+
+release 24 (windows 0.7.0, android 1.8.0, ios 1.8.1) - 2026-11-23
+  - Windows: teacher announcements (create/edit/delete) stored with Android-compatible `ann` key; latest announcements appear on the student Home screen.
+  - Windows: teacher student management now includes search, class/status filters, activation, access-code generation/copy, basic profile editing, deletion, and a student detail view with progress, exam results and homework submissions.
+  - Windows: teacher class management, chapter/lesson editing, lesson reordering, and publish/hide controls. Lesson `p` field is compatible with Android; old records missing it default to published.
+  - Windows: student Home/Courses/collections/history show only published lessons; student profile supports editing name, phone and grade, plus optional password change after current-password verification.
+  - Android resources: added desktop-shared English/Arabic labels used by the Windows port; no Android app behavior changed.
+  - Not built here: .NET SDK is unavailable, so WPF compilation/runtime verification must be performed by GitHub Actions or on Windows.
+  - Still missing: server/shared accounts, update + backup, admin exam/homework management, exam timer and question shuffling.
+
+release 23 (windows 0.6.1, android 1.8.0, ios 1.8.1) - 2026-11-23
+  - iPhone only (Android and Windows: no change). Parity with Android, look only: items 1 and 2 of the gap list.
+  - Tab names like Android: student Home / Subjects / Tests / Profile, teacher Home / Students / Content / Tests (new keys `tab_subjects`, `tab_tests`, ar + en; the Student Home tile uses `tab_subjects`). The student Profile tab keeps the string "tab_profile" as on Android.
+  - Removed the waving-hand emoji from `title_signin` (ar + en).
+  - Files: `Screens/Student/{StudentView,StudentTabs}.swift`, `Screens/Teacher/TeacherView.swift`, both `Localizable.strings`, `tools/gen_xcodeproj.py` (1.8.1 / build 12), regenerated `project.pbxproj`, `ios/README.md`. No new Swift file.
+  - Not built here: no Swift toolchain, compile with Actions. Not tested on a device.
+
+release 22 (windows 0.6.1, android 1.8.0, ios 1.8.0) - 2026-11-23
+  - iPhone only (Android and Windows: no change). Port of Android release 18 phase 2: content management and hidden lessons.
+  - Teacher Content tab: pencil button / row tap on every chapter, lesson, book and file = action sheet: rename, move up / down, delete; lessons also preview, edit (title, chapter, link), publish / hide; books and files open. A switch on each lesson row publishes / hides it; hidden lessons are dimmed and marked.
+  - `Lesson.published` (key `p`, default true). Students no longer see hidden lessons anywhere (home, courses, progress, history, saved items): `Store.publishedLessons` / `publishedLesson` used in the Student screens and in `Store.progress`.
+  - Admin side unchanged (delete-only rows kept as `AdminLessonRow` / `AdminDocRow`).
+  - New strings (ar + en): act_rename, act_edit, act_move_up, act_move_down, act_publish, act_hide, act_preview, act_open, lesson_hidden, lesson_published, lesson_video_label, edit_lesson, rename_chapter, rename_doc, btn_save.
+  - Files: `Core/Models.swift`, `Core/Store.swift`, `Screens/Teacher/{TeacherTabs,TeacherSheets}.swift`, `Screens/Admin/AdminTabs.swift`, `Screens/Student/*` (3 files), both `Localizable.strings`, `tools/gen_xcodeproj.py` (1.8.0 / build 11), `ios/README.md`. No new Swift file.
+  - Not built here: no Swift toolchain, compile with Actions. Not tested on a device.
+
+release 21 (windows 0.6.1, android 1.8.0, ios 1.7.0) - 2026-11-23
+  - iPhone only (Android and Windows: no change). Port of Android: student account rows (release 17) and the teacher's student page (release 18).
+  - Student Account tab: name / email (copy) / phone / class / change password, each a tappable row with its own sheet (`AccountRows`, `AccountTextSheet`, `AccountGradeSheet`, `AccountPasswordSheet`).
+  - Teacher: tap a student card = student page (`TeacherStudentProfile`, route `.student`): data, active, code (New code asks first), progress, official average, exams taken, homework sent / graded, exam results, submissions (tap opens that homework's answers).
+  - New strings (ar + en): acc_*, prof_*, stu_regen_confirm, sec_account (copied from the Android files, same keys).
+  - Files: `Screens/Student/StudentTabs.swift`, `Screens/Teacher/{TeacherStudents,TeacherView,TeacherExams}.swift`, both `Localizable.strings`, `tools/gen_xcodeproj.py` (1.7.0 / build 10), `ios/README.md`. No new Swift file.
+  - Not built here: no Swift toolchain, compile with Actions. Not tested on a device.
+
+release 20 (windows 0.6.1, android 1.8.0, ios 1.6.0) - 2026-11-23
+  - iPhone only (Android and Windows: no change). Port of Android release 18 phase 2, items: teacher dashboard + shortcuts, manage classes.
+  - Teacher Home: Overview stats (active, not active, official-exam average, homework to grade, lessons, exams) + Quick access (add lesson, add exam, add homework, activate accounts, manage classes). `Store.teacherOfficialAverage`, `StatTextRow`, `StatBox(text:)`.
+  - Activate accounts: opens the Students tab filtered on "not active". Students tab now has search by name, class chips and status chips, not-active first.
+  - Manage classes screen (`TeacherClassesScreen`, route `.classes`): add, delete with confirmation, student count per class; also a tile in the Content tab.
+  - New strings (ar + en): sec_overview, sec_quick, stat_active, stat_inactive, act_exam, act_homework, act_activate, act_classes, hint_search_name, classes_note.
+  - Files: `Core/Store.swift`, `Core/Widgets.swift`, `Screens/Teacher/{TeacherTabs,TeacherStudents,TeacherView,TeacherExams}.swift`, both `Localizable.strings`, `tools/gen_xcodeproj.py` (1.6.0 / build 9), `ios/README.md`. No new Swift file.
+  - Not built here: no Swift toolchain, compile with Actions. Not tested on a device.
+
+release 19 (windows 0.6.1, android 1.8.0, ios 1.5.0) - 2026-11-23
+  - iPhone only (Android and Windows: no change). Port of Android release 18 items: teacher full name, class chips at student sign-up, announcements.
+  - Teacher sign-up: Full name field (required) on the "new here?" link of the teacher tab; saved in `TeacherAccount.name`; shown in the header, teacher profile and the admin Teacher card; kept when the admin changes the password. Old accounts show the email prefix as before.
+  - Student sign-up: `GradeChips` (3 fixed chips) replaces the class menu; stored value is still the Arabic class name.
+  - Announcements: teacher adds / deletes them in the Content tab (`AddAnnouncementSheet`), students see the latest 3 on Home (`Announcement`, `Store.announcements`, key `ann`).
+  - New strings (ar + en) in `Localizable.strings`: grade_pick_title, grade_1_short, grade_2_short, grade_3_short, err_name_required, err_teacher_exists, ann_title, hint_ann_text, act_announce.
+  - Files: `Core/Models.swift`, `Core/Store.swift`, `Screens/LoginView.swift`, `Screens/Teacher/{TeacherSheets,TeacherTabs,TeacherView}.swift`, `Screens/Student/StudentTabs.swift`, `Screens/Admin/AdminTabs.swift`, both `Localizable.strings`, `tools/gen_xcodeproj.py` (1.5.0 / build 8), `ios/README.md`. No new Swift file, so the project file list is unchanged.
+  - Not built here: no Swift toolchain, compile with Actions. Not tested on a device.
+
+release 18 (windows 0.6.1, android 1.8.0, ios 1.4.0) - 2026-11-23   [IN PROGRESS: phases 1-2 of 5 done]
+  - Android only (iPhone: no change; Windows: only the generated string files, so the build check stays green).
+  - PHASE 1 - sign-up and base UI
+  - Teacher sign-up: new "Full name" field (the same field the student sign-up uses, shown for the teacher too, required). The name is saved in `Store.kt` under the key `t_name` (`Store.setTeacher(..., name)`, `Store.teacherName()`, removed by `deleteTeacher`). The header (`TeacherActivity.displayName`) and the teacher profile show the real name; the admin's "Teacher" card shows it too. If an old account has no name, the part of the email before the @ is shown as before. When the admin changes the teacher's password the name is kept. Teacher sign-in on a brand new install (first sign-in creates the account) is unchanged and has no name field.
+  - Student sign-up: the class is chosen from 3 fixed glass chips (1st / 2nd / 3rd secondary) instead of a spinner: new `GradeChips` view in `Widgets.kt` + `res/drawable/grade_chip.xml` (glass gradient, sheen, edge; the chosen chip is filled with the accent gradient and pops). No typing. The stored value is still the Arabic class name (`Store.FIXED_GRADES`), so existing students, filters and exams keep working. The extra classes the teacher / admin manage are kept but are NOT offered at sign-up (the "no classes yet" message was removed from sign-up). The row follows RTL / LTR (`layoutDirection=locale`) and the choice survives rotation.
+  - `ic_grade` redrawn as a graduation cap: 24 dp, stroke 2, round caps, `autoMirrored`, symmetric so it is right in RTL and LTR.
+  - Field animation kept: the extra fields still open one after the other (name, confirm password, phone, class) through `animateRow`; the class block is 84 dp high.
+  - Bottom bar: capsule 68 dp high with 16 dp side margins (was 62 dp / 44 dp), tab icons 24 dp, labels 12 sp, `cap_glass` and the sliding indicator kept (indicator + padding adjusted). Free space under every scrolling screen is now 120 dp (+ system inset) so the capsule never covers content.
+  - New strings in `strings_v18.xml` (ar + en): grade_pick_title, grade_1_short, grade_2_short, grade_3_short, err_name_required.
+  - Files: new `res/values*/strings_v18.xml`, `res/drawable/grade_chip.xml`; changed `Store.kt`, `LoginActivity.kt`, `TeacherActivity.kt`, `AdminActivity.kt`, `Widgets.kt`, `ShellActivity.kt`, `res/layout/{activity_login,activity_shell,item_nav}.xml`, `res/drawable/ic_grade.xml`, `app/build.gradle`, `VERSION`. Windows: `Resources/strings.*.json` regenerated (windows.zip repacked, no code change).
+  - Android versionCode 10, versionName 1.8.0 (set in phase 1 so every package of release 18 carries it).
+  - Not touched: `SplashView.kt`, `SplashActivity.kt`, the admin 7-second hold on the logo, iOS.
+  - Not built here: no Android toolchain, compile with Actions. Not tested on a device: the chips in RTL / LTR and on narrow screens (two-line labels), the card growth with the keyboard open, the new capsule size on gesture and 3-button navigation.
+  - PHASE 2 - teacher dashboard (all in `TeacherActivity.kt`, same glass design, no new system)
+  - Home: stats = active students, not active students, official-exam average (average of every student's official average, `Store.teacherOfficialAverage`; "-" until someone took one), homework waiting to be graded, lessons, exams (new `addStatGridText` in `ShellActivity.kt` for texts like "85%"). Shortcuts: add lesson, add exam, add homework (the existing sheets), activate accounts (opens the Students tab already filtered on "not active", shows the count), manage classes.
+  - Students tab: search by name, class filter, status filter (all / active / not active), not-active students first. Each card: tap = student profile, a switch (`glassSwitch` in `Ui.kt`, accent thumb) activates / stops the student through `Store.setStudentActive`, the code (tap or button copies it; first time "Create code"), "New code" (asks first, the old code stops working), delete (asks first). Student profile screen: data + switch + code, study progress, official average, exams taken, homework sent / graded, every exam result (percent, correct / total, date) and every submission (tap opens that homework's answers).
+  - Content tab: every chapter, lesson, book and file has a pencil button (the whole row also opens it) with a sheet: rename / edit, move up, move down, delete (with confirmation). Lessons also: preview, edit (title, link, chapter), publish / hide. Lessons have a switch in the row to publish or hide; hidden ones are dimmed and marked "Hidden from students". `Lesson.published` (new field, key `p`, default true so old data stays visible). Students no longer see hidden lessons anywhere (home, subjects, progress, history, saved items): `Store.publishedLessons` / `publishedLesson` used in `StudentActivity.kt` and `Store.progress`. Order = order in the saved list, so moving a chapter / lesson / book / file changes what students see for chapters and lessons.
+  - Classes: new "Manage classes" screen (add, delete with confirmation, student count per class). The three secondary classes stay fixed at sign-up; extra classes only appear here and in the students filter.
+  - Announcements: teacher adds (title + optional text) / deletes them in the Content tab; students see the latest 3 on their Home (`Announcement` in `Models.kt`, `Store.announcements`, key `ann`).
+  - New strings in `strings_v18.xml` (ar + en): stat_active, stat_inactive, act_exam, act_homework, act_activate, act_classes, act_announce, hint_search_name, prof_*, stu_regen_confirm, btn_save, edit_lesson, act_rename / edit / move_up / move_down / publish / hide / preview / open, lesson_hidden / published / video_label, ann_title, hint_ann_text, classes_note, rename_chapter, rename_doc.
+  - Files changed in phase 2: `Models.kt`, `Store.kt`, `Ui.kt`, `ShellActivity.kt`, `TeacherActivity.kt`, `StudentActivity.kt`, `strings_v18.xml` (ar + en). Windows: generated strings regenerated again.
+  - Not done in phase 2: no drag-and-drop (reorder is up / down), books / files cannot be hidden (only lessons), the admin side is unchanged and still has its own simpler student / content screens.
+  - Not tested on a device: the switch and filters with a long student list, the row re-draw 260 ms after a publish switch, sheets with many actions on small screens.
+  - Not built here: no Android toolchain, compile with Actions.
+
+release 17 (windows 0.6.1, android 1.7.0, ios 1.4.0) - 2026-11-23
+  - Android only (iPhone: no change; Windows: only the generated colour / string files, so the build check stays green).
+  - Launch animation (`SplashView.kt`, `SplashActivity.kt`): richer and longer (about 4.3 s). 1100 dust particles instead of 640, each flying dot leaves a short fading tail, twinkling background dust, the flask is now TRACED stroke by stroke (`PathMeasure.getSegment`) while the dust gathers on it, little bubbles keep rising inside the finished flask, the whole icon pulses at the burst, a second ring follows the first, more sparks. Brand name / tagline come in later to match the new timeline.
+  - Header: the "Welcome <name>" area is now a small floating glass capsule (`headCap`), higher on the screen and smaller (avatar 38 dp, texts 11 / 14 sp) with the settings gear inside it.
+  - Bottom bar: smaller (62 dp, wider side margins) and clearly more transparent: new colours `cap_hi` / `cap_lo` (light + night) and the drawable `cap_glass.xml`, used by both capsules. Free space under scrolling screens is 112 dp (+ inset).
+  - Settings: changing the language, the appearance or the colour no longer replays slide-in animations. The old screen is kept as a picture (`switchConfig` in `ShellActivity.kt`), the activity is rebuilt with no transition (the settings screen stays open, the tab and the scroll position are restored, entrance animations are skipped) and the picture fades away. So only the change itself is animated.
+  - App colour: the circle strip is gone. Settings has one row (current colour + name); tapping it opens a bottom sheet with all 12 colours as a grid with names (`colorSheet`). Choosing one rings it, closes the sheet and applies it.
+  - Student "Account" tab: the plain email card is replaced by rows that all react when tapped: name (edit sheet, updates the header), email (copies it), phone (edit sheet), class (choose from the classes list), change password (current / new / confirm, same rules as the teacher: 6+ characters, stored as a SHA-256 hash). New strings `strings_v17.xml` (ar + en).
+  - Android versionCode 9.
+  - Not built here: no Android toolchain, compile with Actions. If Actions shows a compile error, send the log line. Not tested on a device: the snapshot fade after a language / theme / colour change, the capsule transparency over bright wallpapers, and the new splash timing on slow phones.
+
+release 16 (windows 0.6.1, android 1.6.0, ios 1.4.0) - 2026-11-23
+  - Android: login create-account checkbox, sliding switches, drawn icons, new floating bottom bar, full settings screen, more air on every screen. iPhone: no change. Windows: only the generated string files (new strings added on Android, so the build check stays green).
+  - Launch animation: NOT changed. `SplashView.kt` / `SplashActivity.kt` / `activity_splash.xml` are exactly as in release 15 (atoms gather into the icon square, a second set draws the flask, then the real icon). No colour was renamed or removed, so it still uses the current accent colours.
+  - Login (student + teacher): below the button a line "Create a new account" with a drawn checkbox (`DrawnCheck` in `Widgets.kt`, the tick is drawn stroke by stroke). Ticking it grows the glass card smoothly and the extra fields appear one after the other: confirm password, phone (marked "Optional"), and for students also the name and class fields that were already there; the button becomes "Create account". Unticking shrinks the card back. Same system on the teacher tab (a second teacher account is refused with a message; the teacher phone is saved under `t_phone`). Student sign-up now needs a matching confirm password, the phone is no longer required. The old "have an account / new here" line is gone; "Back" is only used inside the hidden admin mode. The admin hold on the logo is untouched (no feedback at all, one light vibration at 7 s).
+  - Student / Teacher switch (and the two switches in Settings): ONE accent indicator (`SegControl` in `Widgets.kt`) slides between the items with a tiny overshoot while the label colours cross-fade; no background on each button any more.
+  - Icons: all emoji and text symbols removed from strings and layouts (the waving hand, the tick marks, the close cross in the player). The icon set was already line vectors with one stroke width (2), the new ones (`ic_check`, `ic_close`, `avd_check`) follow it. Animations: the eye blinks when the password is shown / hidden, the lock shakes on focus and on a wrong password, the tick is drawn (`avd_check` + `res/animator/check_draw.xml`) for "watched" and for a chosen PDF, the chosen tab icon jumps and settles. Kept as they are: the the bullet separators separators inside subtitles.
+  - Bottom bar: a fully rounded floating glass capsule (`navBox`), nothing is drawn around it (the navigation bar and status bar are transparent and the screen content goes under them; insets are applied by hand in `ShellActivity.setupInsets`). Student: Home, Subjects, Tests, Account. Teacher: Home, Students, Content, Tests. A small bar under the chosen tab slides to the new tab with a soft bounce and the tab icon jumps. Every scrolling screen has 130 dp (+ the system inset) of free space at the bottom, so the capsule never covers content.
+  - Teacher profile is no longer a tab (the bar has four): tap the avatar / name in the header to open it (a normal sub-screen, back returns).
+  - Settings: the gear in the header (now an icon) opens a full screen that slides in, with a back button. Sections: Language (Arabic / English), Appearance (Dark / Light), App colour, then Log out. Language really changes the direction now: Arabic = right-to-left, English = left-to-right (`Prefs.wrap` uses the chosen locale; the layouts use `layoutDirection="locale"`; before, both languages were right-to-left). The colours are ONE horizontal strip of circles that scrolls sideways; tapping one applies it at once and rings it. The old settings sheet and the themes sheet are removed.
+  - Spacing: bigger paddings and margins for cards, rows, stat cards and tiles, a clearer section title above each group (new: Your progress, Quick access, Account, Overview; the existing ones are bigger), more air in the login card, sub-screen back button + title spaced out.
+  - Strings (ar + en, `strings_v16.xml`): signup_new, optional, err_teacher_exists, app_color, tab_subjects, tab_tests, sec_quick, sec_progress, sec_account, sec_overview. The tick / emoji were removed from title_signin, watched, pdf_selected, hw_photo_selected, pw_changed, stu_copied.
+  - Files: new `Widgets.kt`, `res/drawable/{ic_check,ic_close,ic_check_t,avd_check}.xml`, `res/animator/check_draw.xml`, `res/layout/screen_settings.xml`, `res/values*/strings_v16.xml`; removed `res/layout/dialog_settings.xml`; changed `ShellActivity.kt`, `LoginActivity.kt`, `Prefs.kt`, `Store.kt` (setTeacher phone), `Ui.kt`, `StudentActivity.kt`, `TeacherActivity.kt`, `AdminActivity.kt`, layouts (activity_login, activity_shell, item_nav, item_card, item_row, item_stat, item_tile, activity_video, activity_pdf), `nav_glass.xml`, `styles.xml`, `ids.xml`. Windows: `Resources/strings.ar.json` + `strings.en.json` regenerated with tools/gen_resources.py (windows.zip repacked, no code change).
+  - Android versionCode 8 (the 1.5.0 build.gradle inside android.zip still said versionCode 6 / 1.4.0 although release 15 notes say 7, so it was raised to 8 to be safely higher than both).
+  - The preview file `nexora-android-preview.html` was NOT inside NexoraEdu-All-v15.zip, so it was not changed. Send it and the same changes will be applied there.
+  - Not built here: no Android toolchain, compile with Actions. If Actions shows a compile error, send the log line. Not tested on a device: the sliding switch positions in RTL and LTR, the card growing with the keyboard open, the transparent navigation bar on gesture and 3-button navigation, and the language switch re-opening the settings screen after the screen is recreated.
+
+release 15 (windows 0.6.1, android 1.5.0, ios 1.4.0) - 2026-11-23
+  - Android: glass look + new launch animation. iPhone: no change. Windows: only the generated colour files (new colours added on Android, so the build check stays green).
+  - Launch animation (`SplashView.kt`, drawn with a Canvas, no library): dust floating on the screen is pulled in along curved paths and forms the rounded square of the icon; a second set of white / gold dust gathers inside the square and draws the flask (same artwork as `ic_flask`); the dust then turns into the real icon with a light sweep, a ring and a small burst of sparks; the name and tagline fade in. About 3.3 s, tap anywhere to skip. Uses the current accent colours.
+  - Glass look: `AuroraView` (`Glass.kt`) = soft glowing colour orbs drifting slowly behind every screen except video / PDF (stops drawing when the app is in the background). Cards, chips, fields, sheets and the bottom bar are translucent glass (gradient fill, light sheen on top, thin edge). The bottom bar floats as a glass pill with a glowing pill behind the selected tab. Sheets get a real background blur on Android 12+ (older phones: dim only).
+  - Animations: screens slide up item by item, every tappable view shrinks a little while pressed and springs back, tab icons bounce, sheets slide in, the login logo pops in and floats, buttons / avatar / logo glow in the accent colour (Android 9+).
+  - Files: new `Glass.kt`, `SplashView.kt`, `res/drawable/nav_glass.xml`, `res/values/ids.xml`; changed `BaseActivity.kt` (wraps every screen with the background), `ShellActivity.kt`, `LoginActivity.kt`, `SplashActivity.kt`, `Ui.kt`, layouts `activity_splash.xml`, `activity_shell.xml`, `item_nav.xml`, drawables (card_glass, chip_bg, chip_item, sheet_bg, field_bg, btn_primary, logo_bg), colours (glass_hi, glass_lo, sheen, sheet_glass, orb3). The hidden admin hold on the login logo is unchanged and the logo gives no touch feedback.
+  - Android versionCode 7.
+  - Not built here: no Android toolchain, compile with Actions. If Actions shows a compile error, send the log line.
+
+release 14 (windows 0.6.1, android 1.4.0, ios 1.4.0) - 2026-11-23
+  - Android + iPhone: exams and homework, ported from Windows (same screens, same texts, same keys `questions`, `exams`, `results`, `homework`, `subs`).
+    Teacher Exams tab = chips Exams / Question bank / Homework: add + delete questions (2-4 options, one right answer, optional chapter; deleting one also removes it from the exams), create exams from the bank (official / practice), tap an exam for the students' latest results, add + delete homework, read each student's answer (text + photo) and grade it 0-10 with a note. Teacher Home also shows the exams count and the answers still to grade.
+    Student Exams tab = chips Exams / Homework: official average, exam list with the last result, take an exam (one question at a time, previous / next, submit with a warning if something is unanswered, result + review of every answer, retake), homework list with status, answer form (text + one photo, edit and resend; sending again clears the old grade).
+  - Android: `TeacherActivity.kt` (examsTab, question bank, exams, homework, grading), `StudentActivity.kt` (examsTab, exam run, result, homework form). `Store.kt`: new `deleteQuestion`, `draftPhoto` (the not-yet-sent homework photo; also removed with the student). No new strings (`strings_exams.xml` already had them).
+  - iPhone: new `Screens/Teacher/TeacherExams.swift` and `Screens/Student/StudentExams.swift`; `TeacherView` got a small route stack (homework answers), `StudentView` / `StudentRoute` got `.exam` and `.homework`. `Store.swift`: `deleteQuestion`, `scaledPhoto`, `writeHomeworkPhoto`, `deletePhotoFile`. 67 `ex_*` / `hw_*` strings added to both Localizable.strings (converted from `strings_exams.xml`). Xcode project regenerated (30 swift files). Android versionCode 6, iOS build 7.
+  - Windows: no code change (version 0.6.1 + README only). Android strings did not change, so the generated Windows resources are the same.
+  - Not built here: no Android / Xcode / .NET toolchain, compile with Actions. If Actions shows a compile error, send the log line.
+  - Still missing: admin exam / homework screens (all three), no timer, questions not shuffled, update + backup, server.
+
+release 13 (windows 0.6.0, android 1.3.0, ios 1.3.0) - 2026-11-22
+  - Windows: exams and homework. Teacher Exams tab = Exams / Question bank / Homework (`TeacherShell.Exams.cs`): questions (2-4 options, optional chapter), exams (official / practice) with the students' results, homework with the students' answers (text + photo) graded 0-10 + note. Student Exams tab (`ExamsPage.cs`): official average, take an exam (one question at a time, review, retake), homework status + answer form with one photo.
+  - Store: Questions / Exams / Results / HomeworkAll / Submissions (+ saves, DeleteQuestion, DeleteExam, DeleteHomework, PutSubmission, OfficialAverage, Ungraded). DeleteStudent also removes results, answers and photos. New `Core/Photos.cs` (answer photos, JPEG max 1280 px).
+  - Android: only new strings (`strings_exams.xml`, ar + en, not used by Kotlin yet); iPhone: no change.
+  - Not built here: no .NET toolchain, compile with Actions.
+  - Still missing: exam / homework screens on Android and iPhone, admin exam screens, update + backup, server.
+
+release 12 (windows 0.5.0, android 1.3.0, ios 1.3.0) - 2026-11-22
+  - Windows: real admin side (`Views/Admin/AdminShell.cs`), ported from Android AdminActivity, gold colours with the default theme. Tabs: Dashboard (5 counters + add tiles), Teacher (account, change password, delete account), Students (search, class filter, active / inactive, student code with copy / new code, delete with confirmation), Content (add chapter / lesson / video / book / file / class, class list with delete, all content with delete), My account (email, change password, Settings with themes).
+  - Store: SaveGrades, DeleteTeacher, SetStudentActive, NewStudentCode, DeleteStudent (same keys and rules as Store.kt). AdminView placeholder removed; MainWindow opens AdminShell.
+  - MainWindow: Views.Teacher / Views.Admin written with the full namespace.
+  - Android / iPhone: no change.
+  - Not built here: no .NET toolchain, compile with Actions.
+  - Still missing in Windows: nothing that Android has; see windows/README.md.
+
+release 11 (windows 0.4.0, android 1.3.0, ios 1.3.0) - 2026-11-22
+  - Windows: real teacher side (`Views/Teacher/TeacherShell.cs`), same as Android TeacherActivity: Home (counters + manage-content tiles), Students (list), Content (videos, chapters with their lessons, books, files; add chapter / lesson / YouTube video / PDF book / PDF file; delete with confirmation; open lesson in the player, open PDF in the reader), Exams (empty state like Android), Profile (+ Settings with the themes icon). Purple colours with the default theme.
+  - What the teacher adds is saved with the same keys as Android (`chapters`, `lessons`, `docs`, PDFs in `docs\<id>.pdf`) and shows up on the student side.
+  - Store: NewId / SaveChapters / SaveLessons / SaveDocs / DeleteChapter / DeleteDoc / YoutubeId. PdfReaderPage can be opened from the teacher shell. TeacherView placeholder removed.
+  - Android / iPhone: no change.
+  - Not built here: no .NET toolchain, compile with Actions.
+  - Still missing in Windows: see windows/README.md ("Still missing vs Android", easiest first).
+
+release 10 (windows 0.3.0, android 1.3.0, ios 1.3.0) - 2026-11-22
+  - Windows: in-app video player (WebView2 + YouTube IFrame player, controls hidden): play / pause, seek bar with times, +/- skip (5/10/15/30 s, buttons, double-click left/right side of the video, arrow keys), speed 0.5x-2x, full screen (button, F, F11, Esc), resume position, "restart from the beginning", error + retry. Opens from every lesson row (Courses, Home, Resume, History, favourites) and still writes the watch history.
+  - Windows: NuGet package Microsoft.Web.WebView2 1.0.2739.15 added (the PC needs the WebView2 Runtime, already part of Windows 11 and most Windows 10).
+  - Android / iPhone: no change.
+  - Not built here: no .NET toolchain, compile with Actions.
+  - Still missing in Windows: see windows/README.md ("Still missing vs Android", easiest first).
+
+release 9 (windows 0.2.0, android 1.3.0, ios 1.3.0) - 2026-11-22
+  - Themes on Android, iPhone and Windows: a palette icon in the settings sheet opens a themes sheet (Nexora = normal colours + 11 accent themes: ocean, emerald, sunset, rose, violet, gold, crimson, aurora, candy, lime, slate). The choice is saved and applies to every side (student / teacher / admin).
+  - Windows: opening a lesson adds it to the watch history (Courses, Home latest, Resume button, History, favourites screens); lessons without a video show the same message as Android. Until the in-app player exists the video opens on YouTube in the browser.
+  - Android versionCode 5, iOS build 6.
+  - Not built here: no Android / Xcode / .NET toolchain, compile with Actions.
+  - Still missing in Windows: see windows/README.md ("Still missing vs Android", easiest first).
+
+release 8 (windows 0.1.3, android 1.2.1, ios 1.2.1) - 2026-11-22
+  - Profile photo for students on Android, iPhone and Windows (add / change / remove, shown in header / sidebar).
+  - Android versionCode 4, iOS build 5 (so the new APK / IPA installs over the old one).
+  - Not built here: no Android / Xcode / .NET toolchain, compile with Actions.
+  - Still missing in Windows: see windows/README.md ("Still missing vs Android", easiest first).
+
+release 7 (windows 0.1.2) - 2026-11-22
+  - Windows: trash button on collection rows (remove from favourites / review later / important).
+  - Windows: Settings sheet in Profile (dark/light, Arabic/English, log out, close) like Android.
+  - Not built: no .NET toolchain here, compile with Actions.
+  - Still missing: see windows/README.md ("Still missing vs Android", easiest first).
+
+release 6 (windows 0.1.1) - 2026-11-22
+  - Added build + update rules (README "READ FIRST"), VERSION file, CHANGELOG.
+  - Package renamed to NexoraEdu-All-v6.zip.
+  - No Windows features added.
+  - Still missing in Windows vs Android: see the list in windows/README.md ("Still missing vs Android").
