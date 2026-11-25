@@ -1,3 +1,6 @@
+release 80 (windows 0.9.16; android 1.8.29, iPhone 1.9.20 unchanged) - 2026-11-25
+  - WINDOWS build fix: CS1503 in TeacherShell.cs line 326 (the student details screen is a UIElement but ShowSub asked for a UserControl). ShowSub now takes a UIElement; every old call still works.
+
 release 79 (windows 0.9.15; android 1.8.29, iPhone 1.9.20 unchanged) - 2026-11-25
   - WINDOWS build fix (GitHub Actions: Build exe failed with CS0246 HttpClient / HttpContent / Stream and CS0118 Student).
   - csproj: global usings System.IO + System.Net.Http kept; Nullable is now "annotations" so the CS8632 warnings (the ? on reference types) are gone; behaviour unchanged.

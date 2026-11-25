@@ -1,5 +1,5 @@
 package=NexoraEdu-All
-release=79
-windows=0.9.15
+release=80
+windows=0.9.16
 android=1.8.29
 ios=1.9.20
