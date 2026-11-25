@@ -76,3 +76,17 @@ jobs:
         with:
           name: NexoraEdu-Windows-EXE
           path: windows/out/NexoraEdu.exe
+      - name: Build the installer (Inno Setup)
+        working-directory: windows
+        shell: pwsh
+        run: |
+          choco install innosetup -y --no-progress
+          $v = ([xml](Get-Content NexoraEdu.csproj)).Project.PropertyGroup.Version
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DAppVersion=$v" installer\NexoraEdu.iss
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          Get-ChildItem installer_out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NexoraEdu-Windows-Installer
+          path: windows/installer_out/NexoraEdu-Setup.exe
+          if-no-files-found: error
