@@ -1,0 +1,13 @@
+name: keepalive
+on:
+  schedule:
+    - cron: "0 9 * * *"
+  workflow_dispatch: {}
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          curl -fsS -X POST "https://xgwfxzbutkkauxilcpzf.supabase.co/rest/v1/rpc/keepalive" \
+            -H "apikey: sb_publishable_WTL6TvHBsZblJoqt8Xjbjg_vNZVLD5f" \
+            -H "Content-Type: application/json" -d '{}'
