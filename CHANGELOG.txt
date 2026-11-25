@@ -1,3 +1,9 @@
+release 79 (windows 0.9.15; android 1.8.29, iPhone 1.9.20 unchanged) - 2026-11-25
+  - WINDOWS build fix (GitHub Actions: Build exe failed with CS0246 HttpClient / HttpContent / Stream and CS0118 Student).
+  - csproj: global usings System.IO + System.Net.Http kept; Nullable is now "annotations" so the CS8632 warnings (the ? on reference types) are gone; behaviour unchanged.
+  - TeacherShell: Student is always written NexoraEdu.Core.Student (the namespace NexoraEdu.Views.Student hides the class name inside NexoraEdu.Views.*).
+  - NOT compiled here (no dotnet): the CI run is the real test.
+
 release 78 (windows 0.9.14, android 1.8.29, iPhone 1.9.20: TEXTS ONLY, no screen or logic changed) - 2026-11-25
   - Telegram sign-up code, prepared ahead of the bot (steps 2 and 3 are still to do).
   - 6 new texts (ar + en) on all three apps, SAME keys: otp_tg_sub (with the phone number), otp_open_tg, otp_install_tg, otp_tg_sent_again, otp_err_wa_limit, otp_err_waiting_tg. No screen uses them yet; they wait for step 3.
