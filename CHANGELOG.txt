@@ -1,3 +1,8 @@
+release 81 (windows 0.9.17; android 1.8.29, iPhone 1.9.20 unchanged) - 2026-11-25
+  - WINDOWS INSTALLER: the build now also makes NexoraEdu-Setup.exe (Inno Setup): the user chooses the install folder, optional desktop shortcut, start menu entry, uninstaller, "run now" at the end. Default = current user (no admin needed), the wizard can switch to all users.
+  - New: windows/installer/NexoraEdu.iss; .github/workflows/build.yml has 2 new steps and a second artifact NexoraEdu-Windows-Installer. The plain exe artifact is kept.
+  - The app itself is unchanged. NOT run here (no Windows / Inno Setup toolchain): the CI run is the test.
+
 release 80 (windows 0.9.16; android 1.8.29, iPhone 1.9.20 unchanged) - 2026-11-25
   - WINDOWS build fix: CS1503 in TeacherShell.cs line 326 (the student details screen is a UIElement but ShowSub asked for a UserControl). ShowSub now takes a UIElement; every old call still works.
 
